@@ -1,0 +1,15 @@
+<?xml version="1.0" standalone="yes"?>
+<configuration>
+	<tapi_line_name>not implemented yet</tapi_line_name>
+	<output_file>C:\Program Files\pmt\medialog7\private\CISCO_CALL.INI</output_file>
+	<debug_level>bla</debug_level>
+
+	<mappings>
+		<CALLERIDNAME>name</CALLERIDNAME>
+		<CALLERIDNUMBER>number</CALLERIDNUMBER>
+		<LineName>line</LineName>
+		<CALLEDIDNAME>to name</CALLEDIDNAME>
+		<CALLEDIDNUMBER>to number</CALLEDIDNUMBER>
+		<CALLID>id</CALLID>
+	</mappings>
+</configuration>
