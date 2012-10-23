@@ -17,7 +17,7 @@ namespace tapimedialog
 
             while (!_quitRequested)
             {
-                System.Threading.Thread.Sleep(100000);
+                System.Threading.Thread.Sleep(15000);
             }
             p.shutdown();
 
@@ -25,7 +25,7 @@ namespace tapimedialog
 
         static void CurrentDomain_ProcessExit(object sender, EventArgs e)
         {
-            Console.WriteLine("exiting");
+            Console.WriteLine("ProcessExit");
             _quitRequested = true;
         }
                        

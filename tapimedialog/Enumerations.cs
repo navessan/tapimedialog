@@ -29,7 +29,7 @@ namespace C4F.DevKit.Telephony
         /// <summary>
         /// DEVEL - Developer DEBUG Level
         /// </summary>
-        DEVDBG = 5
+        DEVEL = 5
     }
 
     /// <summary>

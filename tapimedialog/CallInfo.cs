@@ -147,7 +147,7 @@ namespace C4F.DevKit.Telephony
         {
             //Type t = p.GetType();
             Type t = typeof(CallInfo);
-            PropertyInfo info = t.GetProperty(propName);
+            PropertyInfo info = t.GetProperty(propName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
             if (info == null)
                 return false;
             if (!info.CanWrite)
@@ -159,13 +159,13 @@ namespace C4F.DevKit.Telephony
         {
             //Type t = p.GetType();
             Type t = typeof(CallInfo);
-            PropertyInfo info = t.GetProperty(propName);
+            PropertyInfo info = t.GetProperty(propName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
             if (info == null)
                 return null;
             return info.GetValue(this,null);            
         }
 
-        public List<string> PropertyGetList(/*object p*/)
+        public static List<string> PropertyGetList(/*object p*/)
         {
             //Type t = p.GetType();
             Type t = typeof(CallInfo);
@@ -180,10 +180,6 @@ namespace C4F.DevKit.Telephony
 
         #endregion
 
-    }
-    public class Person
-    {
-        //internal string Name { get{} set{} }
     }
 
 }

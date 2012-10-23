@@ -60,8 +60,6 @@ namespace C4F.DevKit.Telephony
         public bool debug=false;
 
         #region Constants
-
-        const string DEFAULT_LINE_NAME = "Default";
         
         #endregion
 
@@ -84,16 +82,6 @@ namespace C4F.DevKit.Telephony
         {
 
             get { return this.availableCalls; }
-
-        }
-
-        /// <summary>
-        /// Represents the "default" line name
-        /// </summary>
-        internal string DefaultLineName
-        {
-
-            get { return DEFAULT_LINE_NAME; }
 
         }
 
@@ -167,8 +155,8 @@ namespace C4F.DevKit.Telephony
         /// </summary>
         internal event EndOfPlaybackNotificationEventHandler OnEndOfFilePlayback;
 
-        public delegate void log(string str, verbosity message_level);
-        public log addtolog;
+        public delegate void log_delegate(string str, verbosity message_level);
+        public log_delegate addtolog;
 
         #endregion
 
@@ -220,25 +208,6 @@ namespace C4F.DevKit.Telephony
             }
             return lines;
         }
-
-        /// <summary>
-        /// Gets the communication lines that are currently available.
-        /// </summary>
-        /// <param name="withDefault">Whether or not to include "default" line</param>
-        /// <returns>List of available lines with audio support.</returns>
-        internal List<Line> GetAvailableLines(bool withDefault)
-        {
-            List<Line> lines = GetAvailableLines();
-
-            if (withDefault)
-            {
-                Line defaultLine = new Line();
-                defaultLine.lineName = DEFAULT_LINE_NAME;
-                lines.Insert(0, defaultLine);
-            }
-
-            return lines;
-        }
  
         /// <summary>
         /// Unregisters all the registered lines and then ends the TAPI session.
@@ -261,6 +230,12 @@ namespace C4F.DevKit.Telephony
         #endregion
 
         #region Private Methods
+
+        private void log(string str, verbosity message_level)
+        {
+            if (addtolog != null)
+                addtolog(str, message_level);
+        }
 
         /// <summary>
         /// Initializes the tapi session.
@@ -298,7 +273,8 @@ namespace C4F.DevKit.Telephony
                     // Register for call notification events.
                     if (iTAddress == null)
                     {
-                        if (addtolog != null) addtolog("Line \"" + tapi_line_name + "\" not found",verbosity.LOW);
+                        log("Line \"" + tapi_line_name + "\" not found",verbosity.LOW);
+                        throw new Exception("Line \"" + tapi_line_name + "\" not found");
                     }
                     else
                         RegisterLineForIncomingCalls(iTAddress);
@@ -664,138 +640,138 @@ namespace C4F.DevKit.Telephony
             switch (te)
             {
                 case TAPI3Lib.TAPI_EVENT.TE_CALLNOTIFICATION:
-                    addtolog("TE_CALLNOTIFICATION: ",verbosity.HIGH);
+                    log("TE_CALLNOTIFICATION: ",verbosity.HIGH);
                     call_notification_event = (TAPI3Lib.ITCallNotificationEvent)eobj;
                     call_info = call_notification_event.Call;
                     break;
                 case TAPI3Lib.TAPI_EVENT.TE_DIGITEVENT:
                     TAPI3Lib.ITDigitDetectionEvent dd = (TAPI3Lib.ITDigitDetectionEvent)eobj;
-                    addtolog("Dialed digit" + dd.ToString(), verbosity.HIGH);
+                    log("Dialed digit" + dd.ToString(), verbosity.HIGH);
                     break;
                 case TAPI3Lib.TAPI_EVENT.TE_GENERATEEVENT:
-                    addtolog("digit dialed!", verbosity.HIGH);
+                    log("digit dialed!", verbosity.HIGH);
                     TAPI3Lib.ITDigitGenerationEvent dg = (TAPI3Lib.ITDigitGenerationEvent)eobj;
-                    addtolog("Dialed digit" + dg.ToString(), verbosity.HIGH);
+                    log("Dialed digit" + dg.ToString(), verbosity.HIGH);
                     break;
                 case TAPI3Lib.TAPI_EVENT.TE_PHONEEVENT:
-                    addtolog("A phone event!", verbosity.HIGH);
+                    log("A phone event!", verbosity.HIGH);
                     break;
                 case TAPI3Lib.TAPI_EVENT.TE_GATHERDIGITS:
-                    addtolog("Gather digit event!", verbosity.HIGH);
+                    log("Gather digit event!", verbosity.HIGH);
                     break;
                 case TAPI3Lib.TAPI_EVENT.TE_CALLSTATE:
                     call_state_event = (TAPI3Lib.ITCallStateEvent)eobj;
                     call_info = call_state_event.Call;
-                    addtolog("TE_CALLSTATE: " + call_info.Address.AddressName, verbosity.HIGH);
+                    log("TE_CALLSTATE: " + call_info.Address.AddressName, verbosity.HIGH);
                     break;
                 case TAPI3Lib.TAPI_EVENT.TE_CALLINFOCHANGE:
                     call_info_change_event = (TAPI3Lib.ITCallInfoChangeEvent)eobj;
                     call_info = call_info_change_event.Call;
-                    addtolog("TE_CALLINFOCHANGE: " + call_info.Address.AddressName, verbosity.HIGH);
+                    log("TE_CALLINFOCHANGE: " + call_info.Address.AddressName, verbosity.HIGH);
                     break;
             }
             if (call_info == null)
             {
-                addtolog("TAPI_EVENT: " + te.ToString() + ", call_info is null", verbosity.HIGH);
+                log("TAPI_EVENT: " + te.ToString() + ", call_info is null", verbosity.HIGH);
                 return;
             }
 
             switch (call_info.CallState)
             {
                 case TAPI3Lib.CALL_STATE.CS_INPROGRESS:
-                    addtolog("dialing " + call_info.Address.AddressName, verbosity.HIGH);
+                    log("dialing " + call_info.Address.AddressName, verbosity.HIGH);
                     break;
                 case TAPI3Lib.CALL_STATE.CS_CONNECTED:
-                    addtolog("Connected " + call_info.Address.AddressName, verbosity.HIGH);
+                    log("Connected " + call_info.Address.AddressName, verbosity.HIGH);
                     try
                     {
                         c = call_info.get_CallInfoString(CALLINFO_STRING.CIS_CALLERIDNAME);
-                        addtolog("CALLERIDNAME " + c, verbosity.HIGH);
+                        log("CALLERIDNAME " + c, verbosity.HIGH);
                         c = call_info.get_CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER);
-                        addtolog("CALLERIDNUMBER " + c, verbosity.HIGH);
+                        log("CALLERIDNUMBER " + c, verbosity.HIGH);
                     }
                     catch (Exception ex)
                     {
-                        addtolog("Exception Catched: " + ex.ToString(), verbosity.HIGH);
+                        log("Exception Catched: " + ex.ToString(), verbosity.HIGH);
                     }
 
                     break;
                 case TAPI3Lib.CALL_STATE.CS_DISCONNECTED:
-                    addtolog("Disconnected", verbosity.HIGH);
+                    log("Disconnected", verbosity.HIGH);
                     break;
                 case TAPI3Lib.CALL_STATE.CS_OFFERING:
-                    addtolog("Incoming on line " + call_info.Address.AddressName + "->" + call_info.Address.DialableAddress, verbosity.HIGH);
+                    log("Incoming on line " + call_info.Address.AddressName + "->" + call_info.Address.DialableAddress, verbosity.HIGH);
                     try
                     {
                         c = call_info.get_CallInfoString(CALLINFO_STRING.CIS_CALLEDIDNAME);
-                        addtolog("CALLEDIDNAME " + c, verbosity.HIGH);
+                        log("CALLEDIDNAME " + c, verbosity.HIGH);
                         //c = call_info.get_CallInfoString(CALLINFO_STRING.CIS_CALLEDIDNUMBER);
-                        //addtolog("CALLEDIDNUMBER " + c);
+                        //log("CALLEDIDNUMBER " + c);
                         c = call_info.get_CallInfoString(CALLINFO_STRING.CIS_CALLERIDNAME);
-                        addtolog("CALLERIDNAME " + c, verbosity.HIGH);
+                        log("CALLERIDNAME " + c, verbosity.HIGH);
                         c = call_info.get_CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER);
-                        addtolog("CALLERIDNUMBER " + c, verbosity.HIGH);
+                        log("CALLERIDNUMBER " + c, verbosity.HIGH);
                         c = call_info.get_CallInfoString(CALLINFO_STRING.CIS_DISPLAYABLEADDRESS);
-                        addtolog("DISPLAYABLEADDRESS " + c, verbosity.HIGH);
+                        log("DISPLAYABLEADDRESS " + c, verbosity.HIGH);
                     }
                     catch (Exception ex)
                     {
                         System.Runtime.InteropServices.COMException e;
 
-                        addtolog("Exception Catched: " + ex.ToString(), verbosity.HIGH);
+                        log("Exception Catched: " + ex.ToString(), verbosity.HIGH);
                     }
                     break;
 
                 case TAPI3Lib.CALL_STATE.CS_QUEUED:
-                    addtolog("CALL_STATE: CS_QUEUED on line " + call_info.Address.AddressName, verbosity.HIGH);
+                    log("CALL_STATE: CS_QUEUED on line " + call_info.Address.AddressName, verbosity.HIGH);
 
                     break;
                 case TAPI3Lib.CALL_STATE.CS_IDLE:
-                    addtolog("CALL_STATE: CS_IDLE on line " + call_info.Address.AddressName, verbosity.HIGH);
+                    log("CALL_STATE: CS_IDLE on line " + call_info.Address.AddressName, verbosity.HIGH);
                     try
                     {
                         c = call_info.get_CallInfoString(CALLINFO_STRING.CIS_CALLERIDNAME);
-                        addtolog("CALLERIDNAME " + c, verbosity.HIGH);
+                        log("CALLERIDNAME " + c, verbosity.HIGH);
                         c = call_info.get_CallInfoString(CALLINFO_STRING.CIS_CALLERIDNUMBER);
-                        addtolog("CALLERIDNUMBER " + c, verbosity.HIGH);
+                        log("CALLERIDNUMBER " + c, verbosity.HIGH);
                     }
                     catch (Exception ex)
                     {
-                        addtolog("Exception Catched: " + ex.ToString(), verbosity.HIGH);
+                        log("Exception Catched: " + ex.ToString(), verbosity.HIGH);
                     }
 
                     break;
             }
 
             /*
-            addtolog("CALLINFO_STRING:");
+            log("CALLINFO_STRING:");
             foreach (string name in Enum.GetNames(typeof(CALLINFO_STRING)))
             {
-                addtolog(name + ":");
+                log(name + ":");
                 try
                 {
                     CALLINFO_STRING cis = (CALLINFO_STRING)Enum.Parse(typeof(CALLINFO_STRING), name);
-                    addtolog("" + call_info.get_CallInfoString(cis));
+                    log("" + call_info.get_CallInfoString(cis));
                 }
                 catch (Exception ex)
                 {
-                    addtolog("Exception Catched: " + ex.ToString());
+                    log("Exception Catched: " + ex.ToString());
                 }
             }
             */
             /*
-            addtolog("CALLINFO_LONG:");
+            log("CALLINFO_LONG:");
             foreach (string name in Enum.GetNames(typeof(CALLINFO_LONG)))
             {
-                addtolog(name + ":");
+                log(name + ":");
                 try
                 {
                     CALLINFO_LONG cil = (CALLINFO_LONG)Enum.Parse(typeof(CALLINFO_LONG), name);
-                    addtolog("" + call_info.get_CallInfoLong(cil));
+                    log("" + call_info.get_CallInfoLong(cil));
                 }
                 catch (Exception ex)
                 {
-                    addtolog("Exception Catched: " + ex.ToString());
+                    log("Exception Catched: " + ex.ToString());
                 }
             }
              */
@@ -817,13 +793,11 @@ namespace C4F.DevKit.Telephony
             }
             catch(Exception ex) 
             {
-                if (addtolog != null)
-                    addtolog("RegisterLineForIncomingCalls: " + ex.ToString(), verbosity.HIGH);
+                log("RegisterLineForIncomingCalls: iTAddress.AddressName=" + iTAddress.AddressName +" Exception: "+ex.ToString(), verbosity.DEBUG);
                 return false;
             }
 
-            if(addtolog!=null) 
-                addtolog("Registered on line: " + iTAddress.AddressName,verbosity.MEDIUM);
+            log("Registered on line: " + iTAddress.AddressName,verbosity.MEDIUM);
             return true;
         }
 

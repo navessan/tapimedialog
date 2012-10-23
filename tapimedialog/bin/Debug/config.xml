@@ -1,8 +1,8 @@
 <?xml version="1.0" standalone="yes"?>
 <configuration>
-	<tapi_line_name>not implemented yet</tapi_line_name>
-	<output_file>C:\Program Files\pmt\medialog7\private\CISCO_CALL.INI</output_file>
-	<debug_level>bla</debug_level>
+	<tapi_line_name></tapi_line_name>
+	<outputfile>C:\Program Files\pmt\medialog7\private\CISCO_CALL.INI</outputfile>
+	<debug_level>high</debug_level>
 
 	<mappings>
 		<CALLERIDNAME>name</CALLERIDNAME>
@@ -10,6 +10,7 @@
 		<LineName>line</LineName>
 		<CALLEDIDNAME>to name</CALLEDIDNAME>
 		<CALLEDIDNUMBER>to number</CALLEDIDNUMBER>
-		<CALLID>id</CALLID>
+		<CALLID></CALLID>
+		<CallDirection>direction</CallDirection>
 	</mappings>
 </configuration>

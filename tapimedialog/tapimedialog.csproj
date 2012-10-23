@@ -34,6 +34,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CallInfo.cs" />
+    <Compile Include="configuration.cs" />
     <Compile Include="Enumerations.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="medialog_wrapper.cs" />
@@ -51,6 +52,10 @@
       <WrapperTool>tlbimp</WrapperTool>
       <Isolated>False</Isolated>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="medialog_call-center.txt" />
+    <Content Include="readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
